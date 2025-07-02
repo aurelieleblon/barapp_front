@@ -13,8 +13,8 @@
       </div>
 
       <div class="form-group">
-        <label for="motDePasse">Mot de passe</label>
-        <input type="password" id="motDePasse" v-model="form.motDePasse" required />
+        <label for="email">Email</label>
+        <input type="email" id="email" v-model="email" required />
       </div>
 
       <div class="form-group">
@@ -37,6 +37,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const email = ref('')
+const password = ref('')
 
 const form = ref({
   nom: '',
@@ -48,18 +54,24 @@ const form = ref({
 // Variable pour stocker le message d'erreur
 const errorMessage = ref('')
 
-const registerUser = async () => {
-  errorMessage.value = ''  // reset à chaque tentative
+async function handleLogin() {
+  errorMessage.value = ''
   try {
-    await axios.post('http://localhost:8080/api/utilisateurs', form.value)
-    alert('Inscription réussie !')
-    // Rediriger vers une autre page si besoin
-  } catch (error: any) {
-    console.error('Erreur lors de l’inscription', error)
+    await axios.post('http://localhost:8080/login', new URLSearchParams({
+      email: email.value,
+      password: password.value
+    }), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      withCredentials: true
+    })
 
-    // Si l'erreur vient du backend et contient un message, on l'affiche
-    if (error.response && error.response.data && error.response.data.message) {
-      errorMessage.value = error.response.data.message
+    const roleRes = await axios.get('http://localhost:8080/api/utilisateurs/current-role', { withCredentials: true })
+    const role = roleRes.data.role
+
+    if (role === 'client') {
+      router.push('/client/home')
+    } else if (role === 'barmaker') {
+      router.push('/barmaker/dashboard')
     } else {
       errorMessage.value = 'Email déjà existant.'
     }

@@ -27,6 +27,9 @@
       </div>
 
       <button type="submit">S'inscrire</button>
+
+      <!-- Message d'erreur stylé -->
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </form>
   </div>
 </template>
@@ -42,14 +45,21 @@ const form = ref({
   role: ''
 })
 
+const errorMessage = ref('')
+
 const registerUser = async () => {
+  errorMessage.value = ''
   try {
     await axios.post('http://localhost:8080/api/utilisateurs', form.value)
     alert('Inscription réussie !')
     // Rediriger vers une autre page si besoin
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 400 && error.response.data) {
+      errorMessage.value = error.response.data
+    } else {
+      errorMessage.value = 'Erreur lors de l’inscription.'
+    }
     console.error('Erreur lors de l’inscription', error)
-    alert('Erreur lors de l’inscription.')
   }
 }
 </script>
@@ -84,6 +94,12 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.error-message {
+  color: red;
+  margin-top: 1rem;
+  font-weight: bold;
 }
 </style>
 
