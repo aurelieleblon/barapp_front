@@ -3,8 +3,8 @@
     <h2>Connexion</h2>
     <form @submit.prevent="handleLogin">
       <div class="form-group">
-        <label for="username">Nom d'utilisateur</label>
-        <input type="text" id="username" v-model="username" required />
+        <label for="email">Email</label>
+        <input type="email" id="email" v-model="email" required />
       </div>
 
       <div class="form-group">
@@ -26,29 +26,24 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 
 async function handleLogin() {
   errorMessage.value = ''
   try {
-    // Envoi du formulaire en x-www-form-urlencoded
-   await axios.post('http://localhost:8080/login', new URLSearchParams({
-  username: username.value,
-  password: password.value
-}), {
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  withCredentials: true
-})
+    await axios.post('http://localhost:8080/login', new URLSearchParams({
+      email: email.value,
+      password: password.value
+    }), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      withCredentials: true
+    })
 
-
-    // Récupérer le rôle depuis l'API backend
     const roleRes = await axios.get('http://localhost:8080/api/utilisateurs/current-role', { withCredentials: true })
-console.log('Role response:', roleRes.data)
-const role = roleRes.data.role
-console.log('Role récupéré:', role)
-    
+    const role = roleRes.data.role
+
     if (role === 'client') {
       router.push('/client/home')
     } else if (role === 'barmaker') {

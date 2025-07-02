@@ -2,7 +2,7 @@
   <div>
       <div class="centered-container">
   <p>Bar’App est une application vous permettant de commander vos cocktails préférés et de suivre l’avancement de leur préparation.</p>
-</div><
+</div>
 <h1>Nos Cocktails</h1>
     <div class="cocktail-list">
       <CocktailCard
@@ -25,14 +25,16 @@ interface PrixDto {
   prix: number;
 }
 
-interface CocktailDto {
-  id: number | string;
-  nom: string;
-  prixParTaille: PrixDto[];
-  imageUrl?: string;
+interface CocktailPlat {
+  id: string | number
+  nom: string
+  taille: string
+  prix: number
+  imageUrl?: string
 }
 
-const cocktails = ref<CocktailDto[]>([])
+
+const cocktails = ref<CocktailPlat[]>([])
 
 const cocktailImages = [
   'https://www.themixer.com/en-uk/wp-content/uploads/sites/3/2022/07/147.-Bronx-Cocktail-Ingredients_Canva_yulka3ice.jpg',
@@ -46,15 +48,16 @@ const cocktailImages = [
 const fetchCocktails = async () => {
   try {
     const response = await axios.get('http://localhost:8080/api/cocktails')
-    cocktails.value = response.data.map((cocktail: CocktailDto, index: number) => ({
+
+    // Ici response.data est un tableau "plat", on peut l'assigner directement
+    cocktails.value = response.data.map((cocktail: CocktailPlat, index: number) => ({
       ...cocktail,
-      imageUrl: cocktailImages[index % cocktailImages.length]
+      imageUrl: cocktail.imageUrl || cocktailImages[index % cocktailImages.length]
     }))
   } catch (error) {
     console.error('Erreur lors du chargement des cocktails', error)
   }
 }
-
 onMounted(() => {
   fetchCocktails()
 })
