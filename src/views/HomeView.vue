@@ -3,6 +3,20 @@
       <div class="centered-container">
   <p>Bar’App est une application vous permettant de commander vos cocktails préférés et de suivre l’avancement de leur préparation.</p>
 </div>
+<div class="bandeau">
+    <div class="step">
+      <img src="../assets/vector-cocktail-icon.jpg" alt="Cocktail" />
+      <p>Choisissez votre cocktail</p>
+    </div>
+    <div class="step1">
+      <img src="../assets/panier.jpg" alt="Commande" />
+      <p>Passez votre commande</p>
+    </div>
+    <div class="step">
+      <img src="../assets/table.avif" alt="Installez-vous" />
+      <p>Installez vous confortablement</p>
+    </div>
+  </div>
 <h1>Nos Cocktails</h1>
     <div class="cocktail-list">
       <CocktailCard
@@ -74,6 +88,8 @@ function ajouterAuPanier(cocktail: CocktailPlat) {
   // Redirection vers la page panier
   router.push('/panier')
 }
+
+defineOptions({ name: 'Bandeau' })
 </script>
 
 <style scoped>
@@ -110,6 +126,28 @@ p {font-size: 2rem;
   max-width: 800px;   /* limite la largeur */
   margin: 0 auto;     /* centre horizontalement dans la page */
   padding: 0 2rem;    /* espace à gauche et à droite */
+}
+
+.bandeau {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f5f0f0;
+  padding: 1rem;
+}
+.step {
+  text-align: center;
+}
+.step img {
+  width: 80px;
+  height: auto;
+  
+}
+.step1 img {
+  width: 100px;
+  height: auto;
+  margin: 0 auto 3rem auto; /* marge-bottom plus grande */
+  padding-left: 0;
+  display: block;
 }
 
 </style>
