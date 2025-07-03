@@ -9,6 +9,7 @@
         v-for="cocktail in cocktails"
         :key="cocktail.id"
         :cocktail="cocktail"
+        @ajouter="ajouterAuPanier"
       />
     </div>
   </div>
@@ -18,6 +19,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import CocktailCard from '../components/CocktailCard.vue'
+import router from '../router';
 
 interface PrixDto {
   id: number | string;
@@ -61,6 +63,17 @@ const fetchCocktails = async () => {
 onMounted(() => {
   fetchCocktails()
 })
+
+function ajouterAuPanier(cocktail: CocktailPlat) {
+  let panier = JSON.parse(localStorage.getItem('panier') || '[]')
+
+  panier.push(cocktail)
+
+  localStorage.setItem('panier', JSON.stringify(panier))
+
+  // Redirection vers la page panier
+  router.push('/panier')
+}
 </script>
 
 <style scoped>
@@ -68,7 +81,9 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  justify-content: center;
 }
+
 
 h1 {
   font-size: 3rem;

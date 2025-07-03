@@ -16,11 +16,23 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="cocktail in cocktails" :key="cocktail.id">
-          <td>{{ cocktail.nom }}</td>
-          <td>{{ cocktail.taille }}</td>
-          <td>{{ cocktail.prix.toFixed(2) }}</td>
-        </tr>
+        <template v-for="cocktail in cocktails" :key="cocktail.id">
+          <tr @click="toggleAccordion(cocktail.id)" style="cursor: pointer;">
+            <td>{{ cocktail.nom }}</td>
+            <td>{{ cocktail.taille }}</td>
+            <td>{{ cocktail.prix.toFixed(2) }}</td>
+          </tr>
+          <tr v-if="ouvert === cocktail.id">
+            <td colspan="3">
+              <strong>Ingrédients :</strong>
+              <ul>
+                <li v-for="ingredient in ingredients" :key="ingredient.nom">
+                  {{ ingredient.nom }} - {{ ingredient.quantite }}
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
@@ -30,28 +42,45 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-type Cocktail = {
+interface Cocktail {
   id: number
   nom: string
   taille: string
   prix: number
 }
 
+interface Ingredient {
+  nom: string
+  quantite: string
+}
+
 const cocktails = ref<Cocktail[]>([])
+const ingredients = ref<Ingredient[]>([])
+const ouvert = ref<number | null>(null)
 
 const fetchCocktails = async () => {
   try {
     const response = await axios.get('http://localhost:8080/api/cocktails', {
-      withCredentials: true // important pour la session
+      withCredentials: true
     })
-
-    if (Array.isArray(response.data)) {
-      cocktails.value = response.data
-    } else {
-      console.error('response.data n\'est pas un tableau', response.data)
-    }
+    cocktails.value = response.data
   } catch (error) {
     console.error('Erreur lors du chargement des cocktails', error)
+  }
+}
+
+const toggleAccordion = async (idCocktail: number) => {
+  if (ouvert.value === idCocktail) {
+    ouvert.value = null
+    return
+  }
+
+  try {
+    const response = await axios.get(`http://localhost:8080/api/cocktails/${idCocktail}/ingredients`)
+    ingredients.value = response.data
+    ouvert.value = idCocktail
+  } catch (error) {
+    console.error('Erreur lors du chargement des ingrédients', error)
   }
 }
 
@@ -75,5 +104,14 @@ th, td {
 
 th {
   background-color: #f0f0f0;
+}
+
+tr:hover td {
+  background-color: #f9f9f9;
+}
+
+ul {
+  margin: 0.5rem 0 0 1rem;
+  padding: 0;
 }
 </style>

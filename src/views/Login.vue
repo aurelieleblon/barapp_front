@@ -1,36 +1,35 @@
 <template>
   <div class="register-container">
-    <h2>Inscription</h2>
-    <form @submit.prevent="registerUser">
-      <div class="form-group">
-        <label for="nom">Nom</label>
-        <input type="text" id="nom" v-model="form.nom" required />
-      </div>
-
+    <h2>Connexion</h2>
+    <form @submit.prevent="handleLogin">
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" v-model="form.email" required />
+        <input
+          type="email"
+          id="email"
+          v-model="email"
+          required
+          autocomplete="username"
+          placeholder="Entrez votre email"
+        />
       </div>
 
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" v-model="email" required />
+        <label for="motDePasse">Mot de passe</label>
+        <input
+          type="password"
+          id="motDePasse"
+          v-model="motDePasse"
+          required
+          autocomplete="current-password"
+          placeholder="Entrez votre mot de passe"
+        />
       </div>
 
-      <div class="form-group">
-        <label for="role">Rôle</label>
-        <select id="role" v-model="form.role" required>
-          <option disabled value="">Choisir un rôle</option>
-          <option value="client">Client</option>
-          <option value="barmaker">Barmaker</option>
-        </select>
-      </div>
+      <button type="submit">Se connecter</button>
 
-      <button type="submit">S'inscrire</button>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </form>
-
-    <!-- Affichage du message d'erreur -->
-    <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -39,42 +38,30 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
+const email = ref('')
+const motDePasse = ref('')
+const errorMessage = ref('')
 const router = useRouter()
 
-const email = ref('')
-const password = ref('')
-
-const form = ref({
-  nom: '',
-  email: '',
-  motDePasse: '',
-  role: ''
-})
-
-// Variable pour stocker le message d'erreur
-const errorMessage = ref('')
-
-async function handleLogin() {
+const handleLogin = async () => {
   errorMessage.value = ''
   try {
-    await axios.post('http://localhost:8080/login', new URLSearchParams({
-      email: email.value,
-      password: password.value
-    }), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      withCredentials: true
-    })
-
-    const roleRes = await axios.get('http://localhost:8080/api/utilisateurs/current-role', { withCredentials: true })
-    const role = roleRes.data.role
-
-    if (role === 'client') {
-      router.push('/client/home')
-    } else if (role === 'barmaker') {
-      router.push('/barmaker/dashboard')
+    await axios.post(
+      'http://localhost:8080/api/login',
+      {
+        email: email.value,
+      motDePasse: motDePasse.value   // Utilise "password" ici si ton backend attend ce nom
+      }
+      
+    )
+    router.push('/')
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      errorMessage.value = 'Email ou mot de passe incorrect'
     } else {
-      errorMessage.value = 'Email déjà existant.'
+      errorMessage.value = 'Erreur lors de la connexion.'
     }
+    console.error('Erreur lors de la connexion', error)
   }
 }
 </script>
@@ -96,11 +83,12 @@ label {
   margin-bottom: 0.5rem;
 }
 
-input,
-select {
+input {
   width: 100%;
   padding: 0.5rem;
   font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 button {
@@ -112,9 +100,13 @@ button {
   cursor: pointer;
 }
 
-/* Style message d'erreur */
+button:hover {
+  background-color: #005fa3;
+}
+
 .error-message {
   color: red;
   margin-top: 1rem;
+  font-weight: bold;
 }
 </style>

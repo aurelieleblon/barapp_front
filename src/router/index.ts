@@ -3,7 +3,7 @@ import HomeView from '../views/HomeView.vue';
 import Register from '../views/Register.vue';
 import Login from '../views/Login.vue';
 import BarmakerDashboard from '../views/BarmakerDashboard.vue';
-import Commande from '../views/Commande.vue';
+import Panier from '../views/Panier.vue';
 
 // import CartView from '../views/CartView.vue';
 
@@ -18,7 +18,7 @@ const routes = [
     component: BarmakerDashboard,
     meta: { requiresAuth: true, role: 'barmaker' }
   },
-  {path : '/commande', component: Commande},
+  {path : '/panier', component: Panier},
 ];
 
 const router = createRouter({
